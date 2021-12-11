@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 var crypto = require('crypto');
-var bunyan = require('bunyan')
+var bunyan = require('bunyan');
 const { Pool, Client } = require('pg');
 
 const credentials = {
@@ -41,9 +41,11 @@ app.post('/', async function(req, res) {
   while (!linkCreated) {
     shortLink = crypto.randomBytes(4).toString("hex");
     results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
-    linkCreated = result.rows.length === 0;
+    linkCreated = results.rows.length === 0;
   };
-  var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[req.body.link, shortLink]);
+  var link = req.body.link;
+  link = (link.indexOf('://') === -1) ? 'http://' + link : link;
+  var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
   await client.end();
   console.log(shortLink);
   res.send({shortLink: "http://localhost:9000/" + shortLink});
@@ -74,8 +76,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-
-
 
 module.exports = app;
