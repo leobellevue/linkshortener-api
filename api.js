@@ -27,6 +27,9 @@ app.set('view engine', 'jade');
 app.use(cors({
   origin: 'https://shortlinkme-client.herokuapp.com/'
 }));
+app.options('*', cors({
+  origin: 'https://shortlinkme-client.herokuapp.com/'
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
