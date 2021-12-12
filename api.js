@@ -25,7 +25,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(cors({
-  Access-Control-Allow-Origin: 'https://shortlinkme-client.herokuapp.com/'
+  Access-Control-Allow-Origin: 'https://shortlinkme-client.herokuapp.com/',
+  Vary: Origin
 }));
 app.use(logger('dev'));
 app.use(express.json());
