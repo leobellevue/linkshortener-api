@@ -9,10 +9,10 @@ var bunyan = require('bunyan')
 const { Pool, Client } = require('pg');
 
 const credentials = {
-  user: "postgres",
-  host: "localhost",
-  database: "linkshortenerdb",
-  password: "password",
+  user: "ykwlqxldwgocmw",
+  host: "ec2-35-169-37-64.compute-1.amazonaws.com",
+  database: "d2o40bvr2csv1j",
+  password: "99ba7076507f70d215d8ce9796055d79f0a854428a637d0179cbece99f892778",
   port: 5432,
 };
 
@@ -46,7 +46,7 @@ app.post('/', async function(req, res) {
   var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[req.body.link, shortLink]);
   await client.end();
   console.log(shortLink);
-  res.send({shortLink: "http://localhost:9000/" + shortLink});
+  res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
 });
 
 app.get("/:shortLink", async function(req, res) {
