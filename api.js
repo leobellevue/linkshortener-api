@@ -38,15 +38,31 @@ app.post('/', async function(req, res) {
   await client.connect();
   var shortLink;
   var linkCreated = false;
+  var link = req.body.link
+  const isValidUrl = (url) => {
+    try {
+      new URL (url);
+    } catch (e) {
+      console.error(e);
+      return false;
+    };
+    return true;
+  };
+
+  if (isValidUrl(link)) {
   while (!linkCreated) {
     shortLink = crypto.randomBytes(4).toString("hex");
     results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
-    linkCreated = result.rows.length === 0;
+    linkCreated = results.rows.length === 0;
   };
   var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[req.body.link, shortLink]);
   await client.end();
   console.log(shortLink);
   res.send({shortLink: "http://localhost:9000/" + shortLink});
+} else {
+  res.send({error: "Invalid link, please check spelling and try again."});
+  console.log("Link invalid, not added to database");
+};
 });
 
 app.get("/:shortLink", async function(req, res) {
