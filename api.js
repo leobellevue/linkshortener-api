@@ -41,7 +41,7 @@ app.post('/', async function(req, res) {
   var link = req.body.link
   const isValidUrl = (url) => {
     try {
-      new URL (url);
+      new URL(url);
     } catch (e) {
       console.error(e);
       return false;
