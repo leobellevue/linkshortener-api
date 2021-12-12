@@ -28,7 +28,7 @@ app.use(cors({
   origin: 'https://shortlinkme-client.herokuapp.com/'
 }));
 app.options('*', cors({
-  origin: 'https://shortlinkme-client.herokuapp.com/'
+  origin: 'https://shortlinkme-api.herokuapp.com/'
 }));
 app.use(logger('dev'));
 app.use(express.json());
