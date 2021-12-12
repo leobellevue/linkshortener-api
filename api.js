@@ -5,14 +5,14 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 var crypto = require('crypto');
-var bunyan = require('bunyan')
+var bunyan = require('bunyan');
 const { Pool, Client } = require('pg');
 
 const credentials = {
-  user: "postgres",
-  host: "localhost",
-  database: "linkshortenerdb",
-  password: "password",
+  user: "ykwlqxldwgocmw",
+  host: "ec2-35-169-37-64.compute-1.amazonaws.com",
+  database: "d2o40bvr2csv1j",
+  password: "99ba7076507f70d215d8ce9796055d79f0a854428a637d0179cbece99f892778",
   port: 5432,
 };
 
@@ -55,14 +55,18 @@ app.post('/', async function(req, res) {
     results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
     linkCreated = results.rows.length === 0;
   };
-  var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[req.body.link, shortLink]);
+  var link = req.body.link;
+  link = (link.indexOf('://') === -1) ? 'http://' + link : link;
+  var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
   await client.end();
   console.log(shortLink);
-  res.send({shortLink: "http://localhost:9000/" + shortLink});
+
+  res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
 } else {
   res.send({error: "Invalid link, please check spelling and try again."});
   console.log("Link invalid, not added to database");
 };
+
 });
 
 app.get("/:shortLink", async function(req, res) {
@@ -90,8 +94,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-
-
 
 module.exports = app;
