@@ -9,11 +9,11 @@ var bunyan = require('bunyan');
 const { Pool, Client } = require('pg');
 
 const credentials = {
-  user: "ykwlqxldwgocmw",
-  host: "ec2-35-169-37-64.compute-1.amazonaws.com",
-  database: "d2o40bvr2csv1j",
-  password: "99ba7076507f70d215d8ce9796055d79f0a854428a637d0179cbece99f892778",
-  port: 5432,
+  user: process.env.USER,
+  host: process.env.HOST,
+  database: process.env.DATABASE,
+  password: process.env.PASSWORD,
+  port: process.env.PORT,
 };
 
 var testAPIRouter = require('./routes/testAPI');
