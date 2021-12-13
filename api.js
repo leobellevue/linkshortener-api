@@ -6,14 +6,10 @@ var logger = require('morgan');
 var cors = require('cors');
 var crypto = require('crypto');
 var bunyan = require('bunyan');
-const { Pool, Client } = require('pg');
+const { Client } = require('pg');
 
 const credentials = {
-  user: process.env.USER,
-  host: process.env.HOST,
-  database: process.env.DATABASE,
-  password: process.env.PASSWORD,
-  port: process.env.PORT,
+  connectionString: proccess.env.DATABASE_URL,
 };
 
 var testAPIRouter = require('./routes/testAPI');
