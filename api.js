@@ -21,7 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(cors(
-  origin: "*"
+  Access-Control-Allow-Origin: "*"
 ));
 app.use(logger('dev'));
 app.use(express.json());
