@@ -57,7 +57,7 @@ app.post('/', async function(req, res) {
 
   res.set('Access-Control-Allow-Origin', '*');
 
-  res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
+  res.send({shortLink: "http://shortlinkme-api.heroku.com" + shortLink});
 } else {
   res.set('Access-Control-Allow-Origin', '*');
   res.send({error: "Invalid link, please check spelling and try again."});
