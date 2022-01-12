@@ -3,7 +3,6 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var cors = require('cors');
 var crypto = require('crypto');
 var bunyan = require('bunyan');
 const { Client } = require('pg');
@@ -20,9 +19,6 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors(
-  Access-Control-Allow-Origin: "https://shortlinkme-client.herokuapp.com/"
-));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -59,8 +55,11 @@ app.post('/', async function(req, res) {
   await client.end();
   console.log(shortLink);
 
+  res.set('Access-Control-Allow-Origin', '*');
+
   res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
 } else {
+  res.set('Access-Control-Allow-Origin', '*');
   res.send({error: "Invalid link, please check spelling and try again."});
   console.log("Link invalid, not added to database");
 };
