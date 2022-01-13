@@ -19,6 +19,12 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+// create a write stream (in append mode)
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+
+// setup the logger
+app.use(morgan('combined', { stream: accessLogStream }));
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -50,26 +56,25 @@ app.post('/', async function(req, res) {
   };
 
   if (isValidUrl(link)) {
-  while (!linkCreated) {
-    shortLink = crypto.randomBytes(4).toString("hex");
-    results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
-    linkCreated = results.rows.length === 0;
+    while (!linkCreated) {
+      shortLink = crypto.randomBytes(4).toString("hex");
+      results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
+      linkCreated = results.rows.length === 0;
+    };
+    var link = req.body.link;
+    link = (link.indexOf('://') === -1) ? 'http://' + link : link;
+    var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
+    await client.end();
+    console.log(shortLink);
+
+    res.set('Access-Control-Allow-Origin', '*');
+
+    res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
+  } else {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.send({error: "Invalid link, please check spelling and try again."});
+    console.log("Link invalid, not added to database");
   };
-  var link = req.body.link;
-  link = (link.indexOf('://') === -1) ? 'http://' + link : link;
-  var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
-  await client.end();
-  console.log(shortLink);
-
-  res.set('Access-Control-Allow-Origin', '*');
-
-  res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
-} else {
-  res.set('Access-Control-Allow-Origin', '*');
-  res.send({error: "Invalid link, please check spelling and try again."});
-  console.log("Link invalid, not added to database");
-};
-
 });
 
 app.get("/:shortLink", async function(req, res) {
