@@ -46,6 +46,7 @@ app.post('/', cors(corsOpts), async function(req, res) {
   var shortLink;
   var linkCreated = false;
   var link = req.body.link
+  link = (link.indexOf('://') === -1) ? 'http://' + link : link;
   const isValidUrl = (url) => {
     try {
       new URL(url);
@@ -62,8 +63,6 @@ app.post('/', cors(corsOpts), async function(req, res) {
       results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
       linkCreated = results.rows.length === 0;
     };
-    var link = req.body.link;
-    link = (link.indexOf('://') === -1) ? 'http://' + link : link;
     var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
     await client.end();
     console.log(shortLink);
