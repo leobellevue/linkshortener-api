@@ -6,9 +6,11 @@ var logger = require('morgan');
 var crypto = require('crypto');
 var bunyan = require('bunyan');
 const { Client } = require('pg');
+var cors = require('cors')
 
 const credentials = {
   connectionString: process.env.DATABASE_URL,
+  methods: ['POST']
 };
 
 var testAPIRouter = require('./routes/testAPI');
@@ -28,14 +30,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/dev', testAPIRouter);
-app.options("*", function(req, res, next){
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-  res.send(200);
-});
 
-app.post('/', async function(req, res) {
+corsOpts = {
+  origin: 'https://shortlinkme-client.herokuapp.com'
+}
+
+app.options('/', cors(corsOpts))
+
+app.post('/', cors(corsOpts), async function(req, res) {
   const client = new Client(credentials);
   await client.connect();
   var shortLink;
