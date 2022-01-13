@@ -3,17 +3,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var cors = require('cors');
 var crypto = require('crypto');
 var bunyan = require('bunyan');
-const { Pool, Client } = require('pg');
+const { Client } = require('pg');
+var cors = require('cors')
 
 const credentials = {
-  user: "ykwlqxldwgocmw",
-  host: "ec2-35-169-37-64.compute-1.amazonaws.com",
-  database: "d2o40bvr2csv1j",
-  password: "99ba7076507f70d215d8ce9796055d79f0a854428a637d0179cbece99f892778",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 };
 
 var testAPIRouter = require('./routes/testAPI');
@@ -24,8 +23,9 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+// setup the logger
 app.use(logger('dev'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -33,12 +33,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/dev', testAPIRouter);
 
-app.post('/', async function(req, res) {
+corsOpts = {
+  origin: 'https://shortlinkme-client.herokuapp.com',
+  methods: ['POST']
+}
+
+app.options('/', cors(corsOpts))
+
+app.post('/', cors(corsOpts), async function(req, res) {
   const client = new Client(credentials);
   await client.connect();
   var shortLink;
   var linkCreated = false;
   var link = req.body.link
+  link = (link.indexOf('://') === -1) ? 'http://' + link : link;
   const isValidUrl = (url) => {
     try {
       new URL(url);
@@ -50,23 +58,20 @@ app.post('/', async function(req, res) {
   };
 
   if (isValidUrl(link)) {
-  while (!linkCreated) {
-    shortLink = crypto.randomBytes(4).toString("hex");
-    results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
-    linkCreated = results.rows.length === 0;
+    while (!linkCreated) {
+      shortLink = crypto.randomBytes(4).toString("hex");
+      results = await client.query('SELECT * FROM links WHERE short_url = $1', [shortLink]);
+      linkCreated = results.rows.length === 0;
+    };
+    var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
+    await client.end();
+    console.log(shortLink);
+
+    res.send({shortLink: "http://shortlinkme-api.herokuapp.com/" + shortLink});
+  } else {
+    res.send({error: "Invalid link, please check spelling and try again."});
+    console.log("Link invalid, not added to database");
   };
-  var link = req.body.link;
-  link = (link.indexOf('://') === -1) ? 'http://' + link : link;
-  var result = await client.query(`INSERT INTO links (url, short_url) VALUES ($1, $2);`,[link, shortLink]);
-  await client.end();
-  console.log(shortLink);
-
-  res.send({shortLink: "http://shortlinkme-api.herokuapp.com" + shortLink});
-} else {
-  res.send({error: "Invalid link, please check spelling and try again."});
-  console.log("Link invalid, not added to database");
-};
-
 });
 
 app.get("/:shortLink", async function(req, res) {
