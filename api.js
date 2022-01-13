@@ -9,8 +9,7 @@ const { Client } = require('pg');
 var cors = require('cors')
 
 const credentials = {
-  connectionString: process.env.DATABASE_URL,
-  methods: ['POST']
+  connectionString: process.env.DATABASE_URL
 };
 
 var testAPIRouter = require('./routes/testAPI');
@@ -32,7 +31,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dev', testAPIRouter);
 
 corsOpts = {
-  origin: 'https://shortlinkme-client.herokuapp.com'
+  origin: 'https://shortlinkme-client.herokuapp.com',
+  methods: ['POST']
 }
 
 app.options('/', cors(corsOpts))
