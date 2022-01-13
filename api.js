@@ -9,7 +9,10 @@ const { Client } = require('pg');
 var cors = require('cors')
 
 const credentials = {
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 };
 
 var testAPIRouter = require('./routes/testAPI');
