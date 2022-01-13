@@ -8,7 +8,7 @@ var bunyan = require('bunyan');
 const { Client } = require('pg');
 
 const credentials = {
-  connectionString: proccess.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
 };
 
 var testAPIRouter = require('./routes/testAPI');
