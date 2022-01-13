@@ -23,9 +23,8 @@ app.set('view engine', 'jade');
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 // setup the logger
-app.use(morgan('combined', { stream: accessLogStream }));
+app.use(logger('combined', { stream: accessLogStream }));
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
