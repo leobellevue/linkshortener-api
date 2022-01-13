@@ -67,11 +67,8 @@ app.post('/', cors(corsOpts), async function(req, res) {
     await client.end();
     console.log(shortLink);
 
-    res.set('Access-Control-Allow-Origin', '*');
-
     res.send({shortLink: "http://shortlinkme-api.herokuapp.com/" + shortLink});
   } else {
-    res.set('Access-Control-Allow-Origin', '*');
     res.send({error: "Invalid link, please check spelling and try again."});
     console.log("Link invalid, not added to database");
   };
